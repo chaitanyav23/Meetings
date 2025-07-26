@@ -1,5 +1,6 @@
 '''
-MEETINGS/
+'''
+Meetings/
 ├── backend/
 │   ├── config/
 │   │   └── db.js
