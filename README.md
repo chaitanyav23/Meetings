@@ -1,32 +1,26 @@
 MEETINGS/
 ├── backend/
-│   ├── node_modules/
-│   ├── src/
-│   │   ├── config/
-│   │   │   ├── db.js
-│   │   │   └── passport.js
-│   │   ├── controllers/
-│   │   │   └── meetings.js
-│   │   ├── middleware/
-│   │   │   └── auth.js
-│   │   ├── routes/
-│   │   │   ├── auth.js
-│   │   │   ├── invitations.js
-│   │   │   ├── meetings.js
-│   │   │   └── notifications.js
-│   │   ├── services/
-│   │   │   └── google.js
-│   │   ├── sockets/
-│   │   │   └── io.js
-│   │   └── index.js
-│   ├── .env
-│   ├── package-lock.json
-│   ├── package.json
-│   └── README.md
+│   ├── config/
+│   │   └── db.js
+│   ├── controllers/
+│   ├── middleware/
+│   │   └── auth.js
+│   ├── passport/
+│   │   └── google.js
+│   ├── routes/
+│   │   ├── auth.js
+│   │   ├── invitations.js
+│   │   └── meetings.js
+│   ├── services/
+│   │   └── notifications.js
+│   ├── sockets/
+│   │   └── io.js
+│   └── index.js
+│
 ├── database/
 │   └── schema.sql
+│
 ├── frontend/
-│   ├── node_modules/
 │   ├── public/
 │   │   ├── favicon.ico
 │   │   ├── index.html
@@ -34,34 +28,33 @@ MEETINGS/
 │   │   ├── logo512.png
 │   │   ├── manifest.json
 │   │   └── robots.txt
-│   ├── src/
-│   │   ├── api/
-│   │   │   └── axios.js
-│   │   ├── components/
-│   │   │   ├── Login.js
-│   │   │   ├── LoginButton.js
-│   │   │   └── ProjectedRoute.js
-│   │   ├── contexts/
-│   │   │   ├── AuthContext.js
-│   │   │   └── SocketContext.js
-│   │   ├── pages/
-│   │   │   ├── AccountSetup.js
-│   │   │   ├── Home.js
-│   │   │   ├── NewMeeting.js
-│   │   │   └── Notifications.js
-│   │   ├── styles/
-│   │   │   ├── AccountSetup.css
-│   │   │   └── Login.css
-│   │   ├── App.css
-│   │   ├── App.js
-│   │   ├── App.test.js
-│   │   ├── index.css
-│   │   ├── index.js
-│   │   ├── logo.svg
-│   │   ├── reportWebVitals.js
-│   │   └── setupTests.js
-│   ├── .gitignore
-│   ├── package-lock.json
-│   ├── package.json
-│   └── README.md
+│   └── src/
+│       ├── api/
+│       │   └── axios.js
+│       ├── components/
+│       │   ├── Login.js
+│       │   ├── LoginButton.js
+│       │   ├── NewMeeting.js
+│       │   └── Notifications.js
+│       ├── contexts/
+│       │   └── AuthContext.js
+│       ├── pages/
+│       │   ├── Home.js
+│       │   └── AccountSetup.js
+│       ├── styles/
+│       │   ├── Login.css
+│       │   └── AccountSetup.css
+│       ├── App.js
+│       ├── App.css
+│       ├── App.test.js
+│       ├── index.js
+│       ├── index.css
+│       ├── logo.svg
+│       ├── reportWebVitals.js
+│       └── setupTests.js
+│
+├── .env.example
+├── .gitignore
+├── package.json
+├── package-lock.json
 └── README.md
