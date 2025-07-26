@@ -1,0 +1,17 @@
+# Node modules and environment files
+node_modules/
+.env
+.env.local
+.env.development
+.DS_Store
+*.log
+*.sqlite
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Optional: OS / IDE junk
+.vscode/
+.idea/

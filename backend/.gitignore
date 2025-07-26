@@ -1,0 +1,37 @@
+# === Node ===
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# === Environment Variables ===
+.env
+
+# === OS Files ===
+.DS_Store
+Thumbs.db
+
+# === Logs ===
+logs/
+*.log
+*.out
+
+# === Editor/IDE Files ===
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# === Build Files (if any) ===
+dist/
+build/
+coverage/
+
+# === Local Database Files (optional) ===
+*.sqlite
+*.db
+*.pid
+
+# === Frontend Only (React) ===
+frontend/.env
+frontend/build/
