@@ -1,6 +1,6 @@
 import React from 'react';
 import { useAuth } from '../contexts/AuthContext';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 
 const Home = () => {
   const { user, logout } = useAuth();
@@ -11,92 +11,97 @@ const Home = () => {
     navigate('/login');
   };
 
-  if (!user) {
-    // Optionally, show loading or redirect if user info is missing
-    return (
-      <div style={{ padding: 20, textAlign: 'center' }}>
-        <h1>Loading...</h1>
-      </div>
-    );
+  // Hide page and show loading while fetching user info
+  if (user === null) {
+    return <div>Loading user information...</div>;
   }
 
   return (
-    <div className="home-container" style={{ padding: '20px' }}>
-      <header className="home-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <div className="user-info" style={{ display: 'flex', alignItems: 'center' }}>
+    <div
+      style={{
+        maxWidth: 500,
+        margin: '3rem auto',
+        padding: 20,
+        textAlign: 'center',
+        background: '#fff',
+        borderRadius: 8,
+      }}
+    >
+      <h1>Welcome to Meetings App</h1>
+
+      {user && (
+        <>
           <img
-            src={user?.profilePicture || user?.avatar_url || '/default-avatar.png'}
-            alt="Profile"
-            className="user-avatar"
+            src={user.avatar_url || '/default-avatar.png'}
+            alt="User avatar"
             style={{
-              width: 60,
-              height: 60,
+              width: 100,
+              height: 100,
               borderRadius: '50%',
               objectFit: 'cover',
-              marginRight: 15,
+              marginBottom: 20,
             }}
           />
-          <div>
-            <h3 style={{ margin: 0 }}>Welcome, {user?.name || user?.username}!</h3>
-            {user?.username && <p style={{ margin: 0, color: '#555' }}>@{user.username}</p>}
-          </div>
-        </div>
-        <button
-          onClick={handleLogout}
-          className="logout-btn"
-          style={{
-            padding: '8px 16px',
-            backgroundColor: '#dc3545',
-            color: 'white',
-            border: 'none',
-            borderRadius: 5,
-            cursor: 'pointer',
-            fontWeight: 'bold',
-          }}
-          aria-label="Logout"
-        >
-          Logout
-        </button>
-      </header>
+          <h2>{user.name}</h2>
+          <p>{user.email}</p>
+        </>
+      )}
 
-      <main className="home-main" style={{ marginTop: 30 }}>
-        <div className="action-buttons" style={{ display: 'flex', gap: '15px' }}>
+      {/* Navigation buttons to other pages */}
+      <div style={{ marginTop: 20, display: 'flex', justifyContent: 'center', gap: 20 }}>
+        {/* Using Link for better semantics and SPA navigation */}
+        <Link to="/new-meeting" style={{ textDecoration: 'none' }}>
           <button
-            onClick={() => navigate('/new-meeting')}
-            className="action-btn primary"
             style={{
-              flex: 1,
-              padding: '12px',
+              padding: '10px 20px',
+              fontSize: 16,
+              cursor: 'pointer',
+              borderRadius: 5,
+              border: 'none',
               backgroundColor: '#007bff',
               color: 'white',
-              border: 'none',
-              borderRadius: 6,
-              cursor: 'pointer',
-              fontSize: '16px',
             }}
-            aria-label="Create Meeting"
+            aria-label="Create a new meeting"
           >
-            Create Meeting
+            Create New Meeting
           </button>
+        </Link>
+
+        <Link to="/notifications" style={{ textDecoration: 'none' }}>
           <button
-            onClick={() => navigate('/notifications')}
-            className="action-btn secondary"
             style={{
-              flex: 1,
-              padding: '12px',
+              padding: '10px 20px',
+              fontSize: 16,
+              cursor: 'pointer',
+              borderRadius: 5,
+              border: 'none',
               backgroundColor: '#28a745',
               color: 'white',
-              border: 'none',
-              borderRadius: 6,
-              cursor: 'pointer',
-              fontSize: '16px',
             }}
-            aria-label="View Notifications"
+            aria-label="View notifications"
           >
             Notifications
           </button>
-        </div>
-      </main>
+        </Link>
+      </div>
+
+      {/* Logout button */}
+      <button
+        onClick={handleLogout}
+        style={{
+          marginTop: 30,
+          padding: '12px 25px',
+          backgroundColor: '#d32f2f',
+          border: 'none',
+          borderRadius: 5,
+          color: 'white',
+          fontWeight: 'bold',
+          cursor: 'pointer',
+        }}
+        aria-label="Logout"
+      >
+        Logout
+      </button>
     </div>
   );
 };

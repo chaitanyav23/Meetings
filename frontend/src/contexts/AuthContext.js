@@ -13,7 +13,6 @@ const authReducer = (state, action) => {
         loading: false,
         isAuthenticated: true,
         user: action.payload.user,
-        token: action.payload.token || null,
         error: null,
       };
     case 'LOGIN_ERROR':
@@ -23,24 +22,17 @@ const authReducer = (state, action) => {
         error: action.payload,
         isAuthenticated: false,
         user: null,
-        token: null,
       };
     case 'LOGOUT':
       return {
         ...state,
         isAuthenticated: false,
         user: null,
-        token: null,
         loading: false,
         error: null,
-        tempUserData: null,
       };
     case 'CLEAR_ERROR':
       return { ...state, error: null };
-    case 'SET_TEMP_USER':
-      return { ...state, tempUserData: action.payload };
-    case 'CLEAR_TEMP_USER':
-      return { ...state, tempUserData: null };
     default:
       return state;
   }
@@ -50,10 +42,8 @@ export const AuthProvider = ({ children }) => {
   const [state, dispatch] = useReducer(authReducer, {
     isAuthenticated: false,
     user: null,
-    token: null,
     loading: true,
     error: null,
-    tempUserData: null,
   });
 
   useEffect(() => {
@@ -65,10 +55,7 @@ export const AuthProvider = ({ children }) => {
     try {
       const response = await axios.get('/auth/me');
       if (response.data?.user) {
-        dispatch({
-          type: 'LOGIN_SUCCESS',
-          payload: { user: response.data.user, token: null },
-        });
+        dispatch({ type: 'LOGIN_SUCCESS', payload: { user: response.data.user } });
       } else {
         dispatch({ type: 'LOGOUT' });
       }
@@ -77,50 +64,7 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const loginWithCredentials = async (username, password) => {
-    dispatch({ type: 'LOGIN_START' });
-    try {
-      const response = await axios.post('/auth/login', { username, password });
-      dispatch({
-        type: 'LOGIN_SUCCESS',
-        payload: response.data,
-      });
-      return { success: true };
-    } catch (error) {
-      const errorMessage = error.response?.data?.error || 'Login failed';
-      dispatch({ type: 'LOGIN_ERROR', payload: errorMessage });
-      return { success: false, error: errorMessage };
-    }
-  };
-
-  const setupAccount = async (username, password) => {
-    dispatch({ type: 'LOGIN_START' });
-    try {
-      const response = await axios.post('/auth/setup-account', { username, password });
-      dispatch({
-        type: 'LOGIN_SUCCESS',
-        payload: response.data,
-      });
-      dispatch({ type: 'CLEAR_TEMP_USER' });
-      return { success: true };
-    } catch (error) {
-      const errorMessage = error.response?.data?.error || 'Account setup failed';
-      dispatch({ type: 'LOGIN_ERROR', payload: errorMessage });
-      return { success: false, error: errorMessage };
-    }
-  };
-
-  const getTempUserData = async () => {
-    try {
-      const response = await axios.get('/auth/temp-user');
-      dispatch({ type: 'SET_TEMP_USER', payload: response.data });
-      return response.data;
-    } catch (error) {
-      console.error('Failed to get temp user data:', error);
-      return null;
-    }
-  };
-
+  // Only needed function is logout now
   const logout = async () => {
     try {
       await axios.post('/auth/logout');
@@ -138,12 +82,9 @@ export const AuthProvider = ({ children }) => {
     <AuthContext.Provider
       value={{
         ...state,
-        loginWithCredentials,
-        setupAccount,
-        getTempUserData,
+        checkAuthStatus,
         logout,
         clearError,
-        checkAuthStatus,
       }}
     >
       {children}

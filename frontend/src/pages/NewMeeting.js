@@ -10,19 +10,38 @@ export default function NewMeeting() {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
 
+  // Simple email format validator
+  const validateEmail = (email) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
+
   const onSubmit = async (data) => {
     if (new Date(data.end) <= new Date(data.start)) {
       alert('End time must be after start time.');
       return;
     }
 
-    const inviteeUsernames = data.inviteeUsernames
+    const inviteeEmails = data.inviteeEmails
       .split(',')
-      .map(name => name.trim())
-      .filter(name => name);
+      .map(email => email.trim().toLowerCase())
+      .filter(email => email);
 
-    if (inviteeUsernames.length === 0) {
-      alert('Please enter at least one invitee username.');
+    if (inviteeEmails.length === 0) {
+      alert('Please enter at least one invitee email.');
+      return;
+    }
+
+    for (const email of inviteeEmails) {
+      if (!validateEmail(email)) {
+        alert(`Invalid email format: ${email}`);
+        return;
+      }
+    }
+
+    // Prevent inviting self
+    if (inviteeEmails.includes(user?.email.toLowerCase())) {
+      alert('You cannot invite yourself to a meeting.');
       return;
     }
 
@@ -32,10 +51,11 @@ export default function NewMeeting() {
       description: data.description,
       start_ts: new Date(data.start).toISOString(),
       end_ts: new Date(data.end).toISOString(),
-      inviteeUsernames,  // send usernames instead of UUIDs
+      inviteeEmails,
     };
 
     setLoading(true);
+
     try {
       console.log('Creating meeting with payload:', payload);
       const response = await api.post('/meetings', payload);
@@ -54,7 +74,6 @@ export default function NewMeeting() {
     <div style={{ padding: '20px', maxWidth: '600px', margin: '0 auto' }}>
       <h2>Create New Meeting</h2>
       <p>Logged in as: {user?.name} ({user?.email})</p>
-
       <form onSubmit={handleSubmit(onSubmit)} style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
         <div>
           <label htmlFor="summary">Meeting Title:</label>
@@ -100,15 +119,15 @@ export default function NewMeeting() {
         </div>
 
         <div>
-          <label htmlFor="inviteeUsernames">Invitee Usernames (comma-separated):</label>
+          <label htmlFor="inviteeEmails">Invitee Emails (comma-separated):</label>
           <input
-            id="inviteeUsernames"
+            id="inviteeEmails"
             style={{ width: '100%', padding: '8px', marginTop: '5px' }}
-            placeholder="Enter usernames separated by commas"
-            {...register('inviteeUsernames', { required: 'At least one invitee is required' })}
+            placeholder="friend@example.com, colleague@work.com"
+            {...register('inviteeEmails', { required: 'At least one invitee email is required' })}
           />
-          {errors.inviteeUsernames && <span style={{ color: 'red' }}>{errors.inviteeUsernames.message}</span>}
-          <small style={{ color: '#666' }}>Enter the usernames of users you want to invite</small>
+          {errors.inviteeEmails && <span style={{ color: 'red' }}>{errors.inviteeEmails.message}</span>}
+          <small style={{ color: '#666' }}>Enter the registered Gmail addresses of users you want to invite</small>
         </div>
 
         <button

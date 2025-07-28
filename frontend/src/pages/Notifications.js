@@ -6,13 +6,22 @@ export default function Notifications() {
   const socket = useContext(SocketContext);
   const [items, setItems] = useState([]);
 
-  useEffect(() => {
-    api.get('/notifications').then((r) => {
-      // Ensure r.data.notifications is an array before setting
-      setItems(Array.isArray(r.data.notifications) ? r.data.notifications : []);
-    });
+  const fetchNotifications = async () => {
+    try {
+      const res = await api.get('/notifications');
+      setItems(Array.isArray(res.data.notifications) ? res.data.notifications : []);
+    } catch (error) {
+      console.error('Failed to fetch notifications:', error);
+    }
+  };
 
-    socket.on('notification', (n) => setItems((prev) => [n, ...prev]));
+  useEffect(() => {
+    fetchNotifications();
+
+    socket.on('notification', (n) => {
+      // Optionally deduplicate notifications here
+      setItems(prev => [n, ...prev]);
+    });
 
     return () => socket.off('notification');
   }, [socket]);
@@ -20,17 +29,18 @@ export default function Notifications() {
   const accept = async (inviteId) => {
     try {
       await api.post(`/invitations/${inviteId}/accept`);
+      await fetchNotifications();
     } catch (error) {
       console.error('Error accepting invitation:', error);
-      // Optionally add UI feedback here
+      alert('Failed to accept invitation.');
     }
   };
 
   return (
     <ul>
-      {(Array.isArray(items) ? items : []).map((n) => (
-        <li key={n.inviteId}>
-          {n.message}
+      {(Array.isArray(items) ? items : []).map(n => (
+        <li key={n.inviteId || n.notificationId}>
+          {n.message} - <em>{n.status}</em>
           {n.status === 'pending' && <button onClick={() => accept(n.inviteId)}>Accept</button>}
         </li>
       ))}

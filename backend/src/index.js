@@ -4,7 +4,7 @@ import cors from 'cors';
 import session from 'express-session';
 import connectPgSimple from 'connect-pg-simple';
 import dotenv from 'dotenv';
-import cookieParser from 'cookie-parser';      // <-- Added import for cookie-parser
+import cookieParser from 'cookie-parser';     // <-- Added import for cookie-parser
 import passport from './config/passport.js';
 import { pool } from './config/db.js';
 
@@ -15,6 +15,9 @@ import meetingsRouter from './routes/meetings.js';
 import invitationsRouter from './routes/invitations.js';
 import notificationsRouter from './routes/notifications.js';
 import authRouter from './routes/auth.js';
+
+// *** IMPORT AUTHENTICATION MIDDLEWARE ***
+import authenticateToken from './middleware/auth.js';
 
 const app = express();
 const server = http.createServer(app);
@@ -57,8 +60,10 @@ app.use(express.json());
 // API Routes
 app.use('/api/auth', authRouter);
 app.use('/api/meetings', meetingsRouter);
-app.use('/api/invitations', invitationsRouter);
-app.use('/api/notifications', notificationsRouter);
+
+// *** PROTECT THESE ROUTES WITH AUTH MIDDLEWARE ***
+app.use('/api/invitations', authenticateToken, invitationsRouter);
+app.use('/api/notifications', authenticateToken, notificationsRouter);
 
 // Setup Socket.IO
 registerSocket(server);

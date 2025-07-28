@@ -7,16 +7,15 @@ BEGIN
   IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'invite_status') THEN
     CREATE TYPE invite_status AS ENUM ('pending', 'accepted', 'declined');
   END IF;
-END $$;
+END
+$$;
 
--- Users table: with Google OAuth fields and username/password for app-only login
+-- Users table: Google OAuth only (removed username and password_hash)
 CREATE TABLE IF NOT EXISTS users (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   email TEXT UNIQUE NOT NULL,
-  username TEXT UNIQUE,
-  password_hash TEXT,
   name TEXT NOT NULL,
-  google_id TEXT UNIQUE,
+  google_id TEXT UNIQUE NOT NULL,
   google_refresh_token TEXT,
   avatar_url TEXT,
   created_at TIMESTAMPTZ DEFAULT NOW(),
@@ -62,15 +61,14 @@ CREATE TABLE IF NOT EXISTS sessions (
 -- Index for sessions expiry
 CREATE INDEX IF NOT EXISTS idx_sessions_expire ON sessions(expire);
 
--- Optional: Trigger or rules to update updated_at timestamps on users (if desired)
--- Example trigger function and trigger (optional)
+-- Trigger function to update updated_at timestamps
 CREATE OR REPLACE FUNCTION update_updated_at_column()
 RETURNS TRIGGER AS $$
 BEGIN
-   NEW.updated_at = NOW();
-   RETURN NEW;
+  NEW.updated_at = NOW();
+  RETURN NEW;
 END;
-$$ language 'plpgsql';
+$$ LANGUAGE 'plpgsql';
 
 DROP TRIGGER IF EXISTS trigger_update_users_updated_at ON users;
 
@@ -79,4 +77,4 @@ BEFORE UPDATE ON users
 FOR EACH ROW
 EXECUTE PROCEDURE update_updated_at_column();
 
--- You can add similar triggers for other tables if you want updated_at auto-updated
+-- You can add similar triggers for other tables as needed.
