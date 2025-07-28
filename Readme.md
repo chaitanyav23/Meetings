@@ -46,12 +46,10 @@ MEETINGS/
 │   │   │   ├── AuthContext.js
 │   │   │   └── SocketContext.js
 │   │   ├── pages/
-│   │   │   ├── AccountSetup.js
 │   │   │   ├── Home.js
 │   │   │   ├── NewMeeting.js
 │   │   │   └── Notifications.js
 │   │   ├── styles/
-│   │   │   ├── AccountSetup.css
 │   │   │   └── Login.css
 │   │   ├── App.css
 │   │   ├── App.js
