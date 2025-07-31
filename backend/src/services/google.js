@@ -1,7 +1,33 @@
 import { google } from 'googleapis';
 import dotenv from 'dotenv';
 
+export async function watchCalendarEvents(user, channelId, webhookUrl) {
+  try {
+    const oauth2 = new google.auth.OAuth2(
+      process.env.GOOGLE_CLIENT_ID,
+      process.env.GOOGLE_CLIENT_SECRET,
+      process.env.GOOGLE_REDIRECT_URI
+    );
+    oauth2.setCredentials({ refresh_token: user.google_refresh_token });
+    const calendar = google.calendar({ version: 'v3', auth: oauth2 });
+
+    const res = await calendar.events.watch({
+      calendarId: 'primary',
+      requestBody: {
+        id: channelId, // a unique string for this channel
+        type: 'web_hook',
+        address: webhookUrl,
+      },
+    });
+    return res.data;
+  } catch (error) {
+    console.error('Failed to create Google Calendar watch:', error);
+    throw error;
+  }
+}
+
 dotenv.config();
+
 
 export async function createGoogleEvent(user, eventData) {
   try {

@@ -7,6 +7,7 @@ import dotenv from 'dotenv';
 import cookieParser from 'cookie-parser';     // <-- Added import for cookie-parser
 import passport from './config/passport.js';
 import { pool } from './config/db.js';
+import googleCalendarWebhookRouter from './routes/webhooks/google-calendar.js';
 
 dotenv.config();
 
@@ -21,6 +22,9 @@ import authenticateToken from './middleware/auth.js';
 
 const app = express();
 const server = http.createServer(app);
+
+app.use('/api/webhooks/google-calendar', googleCalendarWebhookRouter);
+
 
 // Use cookie-parser middleware BEFORE session middleware
 app.use(cookieParser());
