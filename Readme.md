@@ -53,8 +53,8 @@ MEETINGS/
 │   │   │   ├── NewMeeting.js
 │   │   │   └── Notifications.js
 │   │   ├── styles/
-│   │   │   ├── Login.css
-│   │   │   └── App.css
+│   │   │   └── Login.css
+│   │   ├── App.css
 │   │   ├── App.js
 │   │   ├── App.test.js
 │   │   ├── index.css
@@ -63,6 +63,7 @@ MEETINGS/
 │   │   ├── reportWebVitals.js
 │   │   └── setupTests.js
 │   ├── .gitignore
+│   ├── .env.example
 │   ├── package-lock.json
 │   └── package.json
 ├── .gitignore
