@@ -1,4 +1,8 @@
 ```
+Refer to the documentation 'Meetings app.pdf' for any doubts
+
+The directory tree of the entire project is as follows:
+
 MEETINGS/
 ├── backend/
 │   ├── node_modules/
@@ -68,5 +72,6 @@ MEETINGS/
 │   └── package.json
 ├── .gitignore
 ├── package-lock.json
+├── Meetings app.pdf
 └── Readme.md
 ```
