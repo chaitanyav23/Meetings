@@ -5,6 +5,21 @@ import { getIO } from '../../sockets/io.js';
 
 const router = express.Router();
 
+// --- WEBHOOK SECURITY: Secret Validation Middleware ---
+router.use((req, res, next) => {
+  const incomingToken = req.query.token;
+  const expectedToken = process.env.WEBHOOK_SECRET;
+  if (!expectedToken) {
+    console.error('WEBHOOK_SECRET env variable is not set!');
+    return res.status(500).send('Webhook security not configured');
+  }
+  if (incomingToken !== expectedToken) {
+    console.warn('Invalid webhook token attempt:', incomingToken);
+    return res.status(403).send('Forbidden: Invalid webhook token');
+  }
+  next();
+});
+
 // Helper function to fetch event attendees and compare RSVP statuses
 async function fetchGoogleEvent(hostRefreshToken, calendarEventId) {
   const oauth2 = new google.auth.OAuth2(

@@ -13,6 +13,7 @@ pool.on('connect', () => {
   console.log('✅ Postgres connected');
 });
 
+// Helper to run queries (mostly use pool.query or transactions as needed)
 const query = (text, params) => pool.query(text, params);
 
 export { pool };

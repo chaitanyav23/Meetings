@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useReducer, useEffect } from 'react';
+import React, { createContext, useContext, useReducer, useEffect, useCallback } from 'react';
 import axios from '../api/axios';
 
 const AuthContext = createContext();
@@ -46,12 +46,12 @@ export const AuthProvider = ({ children }) => {
     error: null,
   });
 
-  useEffect(() => {
-    checkAuthStatus();
-  }, []);
+  // Memoize checkAuthStatus to satisfy useEffect dependencies and prevent stale closures
+  const checkAuthStatus = useCallback(async (retryCount = 0) => {
+    if (retryCount === 0) {
+      dispatch({ type: 'LOGIN_START' });
+    }
 
-  const checkAuthStatus = async () => {
-    dispatch({ type: 'LOGIN_START' });
     try {
       const response = await axios.get('/auth/me');
       if (response.data?.user) {
@@ -60,11 +60,24 @@ export const AuthProvider = ({ children }) => {
         dispatch({ type: 'LOGOUT' });
       }
     } catch (error) {
+      console.error('Auth check failed:', error);
+
+      // Retry logic for network errors
+      if (retryCount < 2 && error.code === 'NETWORK_ERROR') {
+        setTimeout(() => checkAuthStatus(retryCount + 1), 1000 * (retryCount + 1));
+        return;
+      }
+
       dispatch({ type: 'LOGOUT' });
     }
-  };
+  }, []);
 
-  // Only needed function is logout now
+  // Run the auth check on mount and when checkAuthStatus changes (only once since memoized)
+  useEffect(() => {
+    checkAuthStatus();
+  }, [checkAuthStatus]);
+
+  // Function to log out the user
   const logout = async () => {
     try {
       await axios.post('/auth/logout');
@@ -74,17 +87,23 @@ export const AuthProvider = ({ children }) => {
     dispatch({ type: 'LOGOUT' });
   };
 
+  // Function to clear any existing error from state
   const clearError = () => {
     dispatch({ type: 'CLEAR_ERROR' });
+  };
+
+  // Function to refresh authentication status manually
+  const refreshAuth = () => {
+    checkAuthStatus();
   };
 
   return (
     <AuthContext.Provider
       value={{
         ...state,
-        checkAuthStatus,
         logout,
         clearError,
+        refreshAuth,
       }}
     >
       {children}

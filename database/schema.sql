@@ -30,7 +30,9 @@ CREATE TABLE IF NOT EXISTS meetings (
   description TEXT,
   start_ts TIMESTAMPTZ,
   end_ts TIMESTAMPTZ,
-  google_event_id TEXT
+  google_event_id TEXT,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
 -- Invitations table
@@ -45,10 +47,26 @@ CREATE TABLE IF NOT EXISTS invitations (
 CREATE TABLE IF NOT EXISTS notifications (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   invite_id UUID REFERENCES invitations(id) ON DELETE CASCADE,
+  recipient_id UUID REFERENCES users(id) ON DELETE CASCADE,
   message TEXT,
   is_read BOOLEAN DEFAULT false,
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
+
+-- Add recipient_id column to notifications if it doesn't exist (important for existing DBs)
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1
+    FROM information_schema.columns
+    WHERE table_name = 'notifications'
+      AND column_name = 'recipient_id'
+  ) THEN
+    ALTER TABLE notifications
+      ADD COLUMN recipient_id UUID REFERENCES users(id) ON DELETE CASCADE;
+  END IF;
+END;
+$$;
 
 -- Sessions table for express-session with connect-pg-simple
 CREATE TABLE IF NOT EXISTS sessions (
@@ -61,7 +79,13 @@ CREATE TABLE IF NOT EXISTS sessions (
 -- Index for sessions expiry
 CREATE INDEX IF NOT EXISTS idx_sessions_expire ON sessions(expire);
 
--- Trigger function to update updated_at timestamps
+-- Indexes for performance optimization
+CREATE INDEX IF NOT EXISTS idx_invitations_invitee_id ON invitations(invitee_id);
+CREATE INDEX IF NOT EXISTS idx_invitations_meeting_id ON invitations(meeting_id);
+CREATE INDEX IF NOT EXISTS idx_notifications_recipient_id ON notifications(recipient_id);
+CREATE INDEX IF NOT EXISTS idx_meetings_host_id ON meetings(host_id);
+
+-- Trigger function to update updated_at timestamps for users
 CREATE OR REPLACE FUNCTION update_updated_at_column()
 RETURNS TRIGGER AS $$
 BEGIN
@@ -77,4 +101,19 @@ BEFORE UPDATE ON users
 FOR EACH ROW
 EXECUTE PROCEDURE update_updated_at_column();
 
--- You can add similar triggers for other tables as needed.
+-- Trigger function to update updated_at timestamps for meetings
+CREATE OR REPLACE FUNCTION update_meetings_updated_at()
+RETURNS TRIGGER AS $$
+BEGIN
+  NEW.updated_at = NOW();
+  RETURN NEW;
+END;
+$$ LANGUAGE 'plpgsql';
+
+DROP TRIGGER IF EXISTS trigger_update_meetings_updated_at ON meetings;
+
+CREATE TRIGGER trigger_update_meetings_updated_at
+BEFORE UPDATE ON meetings
+FOR EACH ROW
+EXECUTE PROCEDURE update_meetings_updated_at();
+

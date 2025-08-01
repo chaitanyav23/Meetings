@@ -4,35 +4,34 @@ import cors from 'cors';
 import session from 'express-session';
 import connectPgSimple from 'connect-pg-simple';
 import dotenv from 'dotenv';
-import cookieParser from 'cookie-parser';     // <-- Added import for cookie-parser
+import cookieParser from 'cookie-parser';
 import passport from './config/passport.js';
 import { pool } from './config/db.js';
 import googleCalendarWebhookRouter from './routes/webhooks/google-calendar.js';
-
-dotenv.config();
-
 import { registerSocket } from './sockets/io.js';
 import meetingsRouter from './routes/meetings.js';
 import invitationsRouter from './routes/invitations.js';
 import notificationsRouter from './routes/notifications.js';
 import authRouter from './routes/auth.js';
-
-// *** IMPORT AUTHENTICATION MIDDLEWARE ***
 import authenticateToken from './middleware/auth.js';
+
+dotenv.config();
 
 const app = express();
 const server = http.createServer(app);
 
+// ----- Place CORS at the very top -----
+app.use(cors({
+  origin: 'http://localhost:3000',
+  credentials: true,
+}));
+
 app.use('/api/webhooks/google-calendar', googleCalendarWebhookRouter);
 
-
-// Use cookie-parser middleware BEFORE session middleware
 app.use(cookieParser());
 
-// Create session store
 const pgSession = connectPgSimple(session);
 
-// Session middleware - MUST come after cookie-parser and before passport middleware
 app.use(session({
   store: new pgSession({
     pool: pool,
@@ -42,34 +41,22 @@ app.use(session({
   resave: false,
   saveUninitialized: false,
   cookie: {
-    secure: false, // Set true if using HTTPS in production
-    maxAge: 1000 * 60 * 60 * 24 * 7, // 1 week
+    secure: false,
+    maxAge: 1000 * 60 * 60 * 24 * 7,
     httpOnly: true,
   }
 }));
 
-// Passport middleware - MUST come after session middleware
 app.use(passport.initialize());
 app.use(passport.session());
 
-// CORS middleware - allow credentials for cookies/session
-app.use(cors({
-  origin: 'http://localhost:3000',
-  credentials: true,
-}));
-
-// JSON body parser middleware (for POST requests)
 app.use(express.json());
 
-// API Routes
 app.use('/api/auth', authRouter);
 app.use('/api/meetings', meetingsRouter);
-
-// *** PROTECT THESE ROUTES WITH AUTH MIDDLEWARE ***
 app.use('/api/invitations', authenticateToken, invitationsRouter);
 app.use('/api/notifications', authenticateToken, notificationsRouter);
 
-// Setup Socket.IO
 registerSocket(server);
 
 const PORT = process.env.PORT || 5000;

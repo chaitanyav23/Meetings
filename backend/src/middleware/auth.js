@@ -3,7 +3,9 @@ import db from '../config/db.js';
 
 const authenticateToken = async (req, res, next) => {
   try {
-    const token = req.cookies?.auth_token ||
+    // Prefer JWT from cookie; fallback to Bearer header
+    const token =
+      req.cookies?.auth_token ||
       (req.headers.authorization?.startsWith('Bearer ')
         ? req.headers.authorization.slice(7)
         : undefined);
@@ -12,9 +14,12 @@ const authenticateToken = async (req, res, next) => {
       return res.status(401).json({ error: 'Access denied. No token provided.' });
     }
 
-    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'your-secret-key');
+    if (!process.env.JWT_SECRET) {
+      throw new Error('JWT_SECRET must be set in environment variables!');
+    }
 
-    // Only select fields that exist in new schema; no username or profile_picture
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
     const userResult = await db.query(
       'SELECT id, email, name, avatar_url, google_id FROM users WHERE id = $1',
       [decoded.id]

@@ -11,6 +11,8 @@ MEETINGS/
 │   │   ├── middleware/
 │   │   │   └── auth.js
 │   │   ├── routes/
+│   │   │   ├── webhooks/
+│   │   │   │   └── google-calendar.js
 │   │   │   ├── auth.js
 │   │   │   ├── invitations.js
 │   │   │   ├── meetings.js
@@ -21,9 +23,10 @@ MEETINGS/
 │   │   │   └── io.js
 │   │   └── index.js
 │   ├── .env
+│   ├── .env.example
+│   ├── .gitignore
 │   ├── package-lock.json
-│   ├── package.json
-│   └── README.md
+│   └── package.json
 ├── database/
 │   └── schema.sql
 ├── frontend/
@@ -50,8 +53,8 @@ MEETINGS/
 │   │   │   ├── NewMeeting.js
 │   │   │   └── Notifications.js
 │   │   ├── styles/
-│   │   │   └── Login.css
-│   │   ├── App.css
+│   │   │   ├── Login.css
+│   │   │   └── App.css
 │   │   ├── App.js
 │   │   ├── App.test.js
 │   │   ├── index.css
@@ -61,7 +64,8 @@ MEETINGS/
 │   │   └── setupTests.js
 │   ├── .gitignore
 │   ├── package-lock.json
-│   ├── package.json
-│   └── README.md
-└── README.md
+│   └── package.json
+├── .gitignore
+├── package-lock.json
+└── Readme.md
 ```
